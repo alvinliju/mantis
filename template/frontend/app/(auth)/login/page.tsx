@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { pb, persistAuth } from "@/lib/pocketbase";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,17 @@ function GoogleIcon() {
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -36,7 +46,7 @@ export default function LoginPage() {
     try {
       await pb.collection("users").authWithPassword(email, password);
       persistAuth();
-      router.push("/");
+      router.push(next);
     } catch {
       setError("invalid email or password.");
     } finally {
@@ -50,7 +60,7 @@ export default function LoginPage() {
     try {
       await pb.collection("users").authWithOAuth2({ provider: "google" });
       persistAuth();
-      router.push("/");
+      router.push(next);
     } catch {
       setError("google sign-in failed. try again.");
     } finally {
@@ -163,3 +173,4 @@ export default function LoginPage() {
     </Card>
   );
 }
+

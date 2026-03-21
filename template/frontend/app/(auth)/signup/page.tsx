@@ -186,9 +186,9 @@ export default function SignupPage() {
             type="submit"
             disabled={loading || oauthLoading}
             className="w-full font-mono text-sm"
-            style={{ height: "2.75rem", paddingLeft: "0.875rem", paddingRight: "0.875rem" }}
+            style={{ height: "2.75rem" }}
           >
-            {loading ? "creating account..." : "create account →"}
+            {loading ? "creating account..." : "create account"}
           </Button>
         </form>
 

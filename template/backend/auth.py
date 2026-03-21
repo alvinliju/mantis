@@ -10,7 +10,8 @@ bearer = HTTPBearer()
 async def get_current_user(
     creds: HTTPAuthorizationCredentials = Security(bearer),
 ):
-    """Validate a PocketBase token by calling PocketBase's auth-refresh endpoint.
+    """
+    Validate a PocketBase token by calling PocketBase's auth-refresh endpoint.
     Returns the user record on success, raises 401 on failure.
     """
     async with httpx.AsyncClient() as client:
