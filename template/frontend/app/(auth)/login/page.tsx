@@ -114,7 +114,7 @@ export default function LoginPage() {
               required
               autoComplete="email"
               className="font-mono text-sm"
-              style={{ height: "2.625rem" }}
+              style={{ height: "2.75rem", paddingLeft: "0.875rem", paddingRight: "0.875rem" }}
             />
           </div>
 
@@ -131,7 +131,7 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
               className="font-mono text-sm"
-              style={{ height: "2.625rem" }}
+              style={{ height: "2.75rem", paddingLeft: "0.875rem", paddingRight: "0.875rem" }}
             />
           </div>
 
@@ -145,9 +145,9 @@ export default function LoginPage() {
             type="submit"
             disabled={loading || oauthLoading}
             className="w-full font-mono text-sm"
-            style={{ height: "2.625rem" }}
+            style={{ height: "2.75rem" }}
           >
-            {loading ? "signing in..." : "sign in →"}
+            {loading ? "signing in..." : "sign in"}
           </Button>
         </form>
 
