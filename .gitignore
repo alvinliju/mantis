@@ -1,0 +1,7 @@
+# CLI build output
+cli/mantis
+cli/mantis.exe
+
+# Generated test projects (when running from cli/)
+cli/testapp/
+context.md
