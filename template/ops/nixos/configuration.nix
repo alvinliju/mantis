@@ -3,50 +3,53 @@
 {
   system.stateVersion = "24.11";
 
-  # ── networking ──────────────────────────────────────────────────────────────
+  # ── networking ───────────────────────────────────────────────────────────────
   networking.hostName = "mantis-server";
-  networking.firewall.allowedTCPPorts = [ 22 80 443 8000 ];
+  networking.firewall.allowedTCPPorts = [ 22 80 443 ];
+  # caddy handles 80 and 443. everything else is internal.
 
-  # ── ssh ─────────────────────────────────────────────────────────────────────
+  # ── ssh ──────────────────────────────────────────────────────────────────────
   services.openssh = {
     enable = true;
-    settings.PasswordAuthentication = false;  # key only, no passwords
+    settings.PasswordAuthentication = false;
   };
 
-  # ── postgres ─────────────────────────────────────────────────────────────────
-  services.postgresql = {
+  # ── pocketbase ───────────────────────────────────────────────────────────────
+  systemd.services.pocketbase = {
     enable = true;
-    package = pkgs.postgresql_16;
-    ensureDatabases = [ "mantis" ];
-    ensureUsers = [
-      {
-        name = "mantis";
-        ensureDBOwnership = true;
-      }
-    ];
-  };
-
-  # ── fastapi app ──────────────────────────────────────────────────────────────
-  systemd.services.mantis-app = {
-    enable = true;
-    description = "mantis fastapi backend";
+    description = "pocketbase — database, auth, admin ui";
     wantedBy = [ "multi-user.target" ];
-    after = [ "postgresql.service" ];      # wait for postgres to start first
-
-    environment = {
-      DATABASE_URL = "postgresql://mantis@localhost:5432/mantis";
-    };
+    after = [ "network.target" ];
 
     serviceConfig = {
-      WorkingDirectory = "/app/backend";
-      ExecStart = "/app/backend/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000";
+      ExecStart = "${pkgs.pocketbase}/bin/pocketbase serve --dir=/app/pocketbase --http=127.0.0.1:8090";
       Restart = "always";
       RestartSec = "5s";
       User = "mantis";
     };
   };
 
-  # ── nextjs frontend ──────────────────────────────────────────────────────────
+  # ── fastapi backend ───────────────────────────────────────────────────────────
+  systemd.services.mantis-app = {
+    enable = true;
+    description = "mantis fastapi backend";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "pocketbase.service" ];
+
+    environment = {
+      POCKETBASE_URL = "http://127.0.0.1:8090";
+    };
+
+    serviceConfig = {
+      WorkingDirectory = "/app/backend";
+      ExecStart = "/app/backend/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000";
+      Restart = "always";
+      RestartSec = "5s";
+      User = "mantis";
+    };
+  };
+
+  # ── nextjs frontend ───────────────────────────────────────────────────────────
   systemd.services.mantis-frontend = {
     enable = true;
     description = "mantis nextjs frontend";
@@ -61,21 +64,31 @@
     };
   };
 
-  # ── nginx reverse proxy ──────────────────────────────────────────────────────
-  # sits in front of both services, routes traffic correctly
-  services.nginx = {
+  # ── caddy reverse proxy ───────────────────────────────────────────────────────
+  # handles HTTPS automatically. no certbot. no manual certs.
+  services.caddy = {
     enable = true;
-    virtualHosts."_" = {
-      locations."/" = {
-        proxyPass = "http://localhost:3000";   # nextjs
-      };
-      locations."/api/" = {
-        proxyPass = "http://localhost:8000";   # fastapi
-      };
+    virtualHosts."your-domain.com" = {
+      extraConfig = ''
+        # nextjs frontend
+        handle / {
+          reverse_proxy localhost:3000
+        }
+
+        # fastapi backend
+        handle /api/* {
+          reverse_proxy localhost:8000
+        }
+
+        # pocketbase admin + api
+        handle /pb/* {
+          reverse_proxy localhost:8090
+        }
+      '';
     };
   };
 
-  # ── app user ─────────────────────────────────────────────────────────────────
+  # ── app user ──────────────────────────────────────────────────────────────────
   users.users.mantis = {
     isSystemUser = true;
     group = "mantis";
@@ -83,11 +96,12 @@
   };
   users.groups.mantis = {};
 
-  # ── packages available on server ─────────────────────────────────────────────
+  # ── packages available on server ──────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     git
     curl
     python312
     nodejs_20
+    pocketbase
   ];
 }

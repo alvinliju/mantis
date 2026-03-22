@@ -1,5 +1,5 @@
 {
-  description = "mantis development";
+  description = "mantis — forge something real";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
@@ -18,8 +18,8 @@
             pkgs.python312
             pkgs.uv
 
-            # Database
-            pkgs.postgresql_16
+            # PocketBase
+            pkgs.pocketbase
 
             # Frontend
             pkgs.nodejs_20
@@ -30,31 +30,25 @@
             pkgs.curl
           ];
 
-          # Runs when you enter the shell
           shellHook = ''
-            echo "started mantis dev environment"
-            echo "python: $(python --version)"
-            echo "node:   $(node --version)"
+            echo "🔥 mantis dev environment"
+            echo "python:     $(python --version)"
+            echo "node:       $(node --version)"
+            echo "pocketbase: $(pocketbase --version)"
             echo ""
 
-            # Set up local postgres (no sudo, no system install)
-            export PGDATA=$PWD/.postgres
-            export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mantis"
+            # Start PocketBase if not already running
+            export POCKETBASE_URL="http://localhost:8090"
+            export POCKETBASE_DATA="$PWD/.pocketbase"
 
-            if [ ! -d "$PGDATA" ]; then
-              echo "Setting up Postgres for the first time..."
-              initdb -U postgres --auth=trust
+            mkdir -p $POCKETBASE_DATA
+
+            if ! pgrep -f "pocketbase serve" > /dev/null; then
+              pocketbase serve --dir=$POCKETBASE_DATA > $POCKETBASE_DATA/pocketbase.log 2>&1 &
+              echo "PocketBase started."
+              echo "Admin UI: http://localhost:8090/_/"
             fi
 
-            # Start postgres if not already running
-            if ! pg_ctl status -D $PGDATA > /dev/null 2>&1; then
-              pg_ctl start -D $PGDATA -l $PGDATA/postgres.log
-              sleep 1
-              createdb -U postgres mantis 2>/dev/null || true
-              echo "Postgres started."
-            fi
-
-            echo "DATABASE_URL=$DATABASE_URL"
             echo ""
             echo "next steps:"
             echo "  cd backend && uv sync    # install python deps"
