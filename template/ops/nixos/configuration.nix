@@ -29,38 +29,28 @@
     };
   };
 
-  # ── fastapi backend ───────────────────────────────────────────────────────────
+  # ── rails app (puma) ─────────────────────────────────────────────────────────
   systemd.services.mantis-app = {
     enable = true;
-    description = "mantis fastapi backend";
+    description = "mantis rails app";
     wantedBy = [ "multi-user.target" ];
     after = [ "pocketbase.service" ];
 
     environment = {
-      POCKETBASE_URL = "http://127.0.0.1:8090";
+      RAILS_ENV        = "production";
+      POCKETBASE_URL   = "http://127.0.0.1:8090";
+      PORT             = "3000";
+      # Set SECRET_KEY_BASE in /app/rails/.env or via a systemd EnvironmentFile
     };
 
     serviceConfig = {
-      WorkingDirectory = "/app/backend";
-      ExecStart = "/app/backend/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000";
-      Restart = "always";
-      RestartSec = "5s";
-      User = "mantis";
-    };
-  };
-
-  # ── nextjs frontend ───────────────────────────────────────────────────────────
-  systemd.services.mantis-frontend = {
-    enable = true;
-    description = "mantis nextjs frontend";
-    wantedBy = [ "multi-user.target" ];
-
-    serviceConfig = {
-      WorkingDirectory = "/app/frontend";
-      ExecStart = "${pkgs.nodejs_20}/bin/node server.js";
-      Restart = "always";
-      RestartSec = "5s";
-      User = "mantis";
+      WorkingDirectory  = "/app/rails";
+      ExecStartPre      = "${pkgs.ruby_3_3}/bin/bundle exec rails assets:precompile db:migrate";
+      ExecStart         = "${pkgs.ruby_3_3}/bin/bundle exec puma -C config/puma.rb";
+      Restart           = "always";
+      RestartSec        = "5s";
+      User              = "mantis";
+      EnvironmentFile   = "/app/rails/.env";
     };
   };
 
@@ -70,17 +60,12 @@
     enable = true;
     virtualHosts."your-domain.com" = {
       extraConfig = ''
-        # nextjs frontend
-        handle / {
+        # rails handles everything
+        handle {
           reverse_proxy localhost:3000
         }
 
-        # fastapi backend
-        handle /api/* {
-          reverse_proxy localhost:8000
-        }
-
-        # pocketbase admin + api
+        # pocketbase admin ui (restrict to your IP in production)
         handle /pb/* {
           reverse_proxy localhost:8090
         }
@@ -100,8 +85,9 @@
   environment.systemPackages = with pkgs; [
     git
     curl
-    python312
+    ruby_3_3
     nodejs_20
     pocketbase
+    sqlite
   ];
 }
