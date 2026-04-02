@@ -14,13 +14,15 @@
       {
         devShells.default = pkgs.mkShell {
           packages = [
-            # Ruby
+            # Ruby + native gem build deps
             pkgs.ruby_3_3
             pkgs.bundler
+            pkgs.libyaml       # psych (YAML parser used by Rails)
+            pkgs.pkg-config    # lets extconf.rb find libraries via pkg-config
+            pkgs.zlib          # nokogiri and others
 
             # Node (Vite asset pipeline)
             pkgs.nodejs_20
-            pkgs.nodePackages.npm
 
             # PocketBase
             pkgs.pocketbase
