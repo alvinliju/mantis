@@ -1,6 +1,6 @@
-# 🪜 Mantis
+# Mantis
 
-> Scaffold production-ready apps in seconds. No Docker. No slop. No AI garbage.
+Scaffold production-ready apps in seconds. No Docker. No slop.
 
 ```bash
 mantis new myapp
@@ -10,9 +10,7 @@ mantis new myapp
 
 ## What it does
 
-Mantis drops a fully wired, production-ready project into your directory — Next.js frontend, FastAPI backend, Pocketbase for auth and DB, NixOS-first environment. Everything talking to everything. You write product code from line one.
-
-No more spending 4 hours on boilerplate before you've built anything real.
+Mantis generates a fully wired, production-ready project — a Ruby on Rails app with Hotwire, React sprinkles, and Pocketbase for auth and database. NixOS flakes as the dev environment. You write product code from line one.
 
 ---
 
@@ -20,8 +18,11 @@ No more spending 4 hours on boilerplate before you've built anything real.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js (App Router, TypeScript) |
-| Backend | Python / FastAPI |
+| Web framework | Ruby on Rails 8 |
+| Interactivity | Hotwire (Turbo + Stimulus) |
+| React islands | Vite + React (via vite_rails) |
+| UI components | shadcn-style (Button, Card, Badge, Input) |
+| Styling | Tailwind v4 |
 | Auth + DB | Pocketbase |
 | Environment | NixOS (flakes, devShell) |
 
@@ -30,14 +31,14 @@ No more spending 4 hours on boilerplate before you've built anything real.
 ## Usage
 
 ```bash
-# scaffold a new project
 mantis new myapp
-
-# then
-cd myapp && nix develop
+cd myapp
+nix develop
+cd rails && bundle install
+cd rails && npm install
+cd rails && bin/rails db:create db:migrate
+cd rails && bin/dev
 ```
-
-That's it.
 
 ---
 
@@ -45,25 +46,39 @@ That's it.
 
 ```
 myapp/
-├── frontend/     # Next.js app, ready to run
-├── backend/      # FastAPI app, auth wired in
-└── flake.nix     # Nix devShell covering everything
+├── rails/        # Rails 8 app — Hotwire, Vite, React, Tailwind
+├── ops/          # NixOS flake, deploy script, direnv config
+└── flake.nix     # devShell covering everything
 ```
+
+---
+
+## React islands
+
+Mount any component from any ERB view:
+
+```erb
+<%= react_component("Button", variant: "outline") %>
+```
+
+Register new components in `app/javascript/components/index.js`. Components re-mount automatically after Turbo navigations.
+
+---
+
+## Deployment
+
+Deploy to any VPS via `ops/deploy.sh`. Secrets go in `rails/.env`. Update your domain in `ops/nixos/configuration.nix`.
 
 ---
 
 ## Roadmap
 
-- **v0.1** — Single stack, `mantis new`, works on NixOS and prod
+- **v0.1** — Rails stack, `mantis new`, works on NixOS and prod
 - **v0.2** — Bug fixes, Nix hardening, zero-manual-step first run
-- **v1+** — `mantis add payments`, `mantis add s3`, more auth platforms
+- **v1+** — `mantis add auth`, `mantis add payments`, `mantis add s3`
 
 ---
 
 ## Philosophy
 
-Templates are real working code — not template soup with markers and conditionals baked in. When you clone what Mantis generates, it runs. No setup ritual. No decoding what `{{#if auth}}` was supposed to mean.
-
-Build fast. Ship honest software.
-
----
+Templates are real working code — not template soup with markers and conditionals. When you clone what Mantis generates, it runs. No setup ritual. Build fast. Ship honest software.
