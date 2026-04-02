@@ -1,0 +1,37 @@
+<main class="flex min-h-screen flex-col items-center justify-center gap-8 p-8">
+  <div class="text-center">
+    <h1 class="text-4xl font-bold tracking-tight">__project_name__</h1>
+    <p class="mt-2 text-muted-foreground">Rails · Hotwire · React · Pocketbase</p>
+  </div>
+
+  <%# Stimulus demo — Hotwire-native interactivity %>
+  <div data-controller="hello" class="flex flex-col items-center gap-3">
+    <input
+      data-hello-target="name"
+      type="text"
+      placeholder="Your name"
+      class="rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+    >
+    <button
+      data-action="click->hello#greet"
+      class="inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+    >
+      Greet (Stimulus)
+    </button>
+    <p data-hello-target="output" class="text-sm text-muted-foreground"></p>
+  </div>
+
+  <%# React component sprinkle — rendered client-side %>
+  <%= react_component("Button", variant: "outline") do %>
+    React Button
+  <% end %>
+
+  <% unless signed_in? %>
+    <%= link_to "Sign in", new_session_path, class: "text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground" %>
+  <% else %>
+    <div class="flex items-center gap-4 text-sm">
+      <span>Signed in as <%= current_user["email"] %></span>
+      <%= button_to "Sign out", session_path, method: :delete, class: "text-muted-foreground underline underline-offset-4 hover:text-foreground" %>
+    </div>
+  <% end %>
+</main>

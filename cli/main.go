@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 const mantisVersion = "0.1.0"
@@ -77,6 +78,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "mantis: replace failed: %v\n", err)
 		os.Exit(1)
 	}
+	if err := ReplaceInFiles(targetDir, "__project_name_pascal__", toPascalCase(projectName)); err != nil {
+		fmt.Fprintf(os.Stderr, "mantis: replace failed: %v\n", err)
+		os.Exit(1)
+	}
 	fmt.Println("  Replacing placeholders... done")
 
 	if err := Finalize(targetDir, projectName); err != nil {
@@ -115,13 +120,23 @@ func validateTemplateDir(dir string) error {
 	if !info.IsDir() {
 		return fmt.Errorf("%s is not a directory", dir)
 	}
-	backend := filepath.Join(dir, "backend")
-	frontend := filepath.Join(dir, "frontend")
-	if _, err := os.Stat(backend); err != nil {
-		return fmt.Errorf("template must contain backend/: %w", err)
-	}
-	if _, err := os.Stat(frontend); err != nil {
-		return fmt.Errorf("template must contain frontend/: %w", err)
+	rails := filepath.Join(dir, "rails")
+	if _, err := os.Stat(rails); err != nil {
+		return fmt.Errorf("template must contain rails/: %w", err)
 	}
 	return nil
+}
+
+// toPascalCase converts "my-app" or "my_app" to "MyApp".
+func toPascalCase(s string) string {
+	parts := strings.FieldsFunc(s, func(r rune) bool {
+		return r == '-' || r == '_'
+	})
+	var b strings.Builder
+	for _, p := range parts {
+		if len(p) > 0 {
+			b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+		}
+	}
+	return b.String()
 }

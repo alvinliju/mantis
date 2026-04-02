@@ -1,0 +1,28 @@
+<main class="flex min-h-screen items-center justify-center p-8">
+  <div class="w-full max-w-sm space-y-6">
+    <div class="text-center">
+      <h2 class="text-2xl font-bold">Sign in</h2>
+      <p class="mt-1 text-sm text-muted-foreground">via Pocketbase</p>
+    </div>
+
+    <%= form_with url: session_path, class: "space-y-4" do |f| %>
+      <div class="space-y-1">
+        <%= f.label :email, class: "text-sm font-medium" %>
+        <%= f.email_field :email,
+              required: true,
+              autofocus: true,
+              class: "w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring" %>
+      </div>
+
+      <div class="space-y-1">
+        <%= f.label :password, class: "text-sm font-medium" %>
+        <%= f.password_field :password,
+              required: true,
+              class: "w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring" %>
+      </div>
+
+      <%= f.submit "Sign in",
+            class: "w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 cursor-pointer" %>
+    <% end %>
+  </div>
+</main>

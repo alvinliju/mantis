@@ -18,6 +18,10 @@ var (
 		".next":        true,
 		"__pycache__":  true,
 		".git":         true,
+		".bundle":      true,
+		"vendor":       true,
+		"tmp":          true,
+		"log":          true,
 	}
 	skipFiles = map[string]bool{
 		"package-lock.json": true,

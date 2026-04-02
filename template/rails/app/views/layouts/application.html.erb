@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>__project_name__</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag "application", crossorigin: "anonymous" %>
+  </head>
+  <body class="min-h-screen bg-background font-sans antialiased">
+    <% if notice.present? %>
+      <div class="fixed top-4 right-4 z-50 rounded-md bg-green-50 px-4 py-3 text-sm text-green-800 shadow">
+        <%= notice %>
+      </div>
+    <% end %>
+    <% if alert.present? %>
+      <div class="fixed top-4 right-4 z-50 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800 shadow">
+        <%= alert %>
+      </div>
+    <% end %>
+    <%= yield %>
+  </body>
+</html>

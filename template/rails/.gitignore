@@ -1,0 +1,14 @@
+.bundle/
+log/*.log
+tmp/
+storage/
+.byebug_history
+public/assets
+public/vite*
+node_modules/
+yarn-error.log
+.yarn-integrity
+.env
+*.sqlite3
+config/master.key
+config/credentials/*.key
