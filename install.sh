@@ -22,5 +22,6 @@ if ! grep -qF "$EXPORT_LINE" "$RC_FILE" 2>/dev/null; then
   echo "Added to $RC_FILE"
 fi
 
-export PATH="$HOME/.local/bin:$PATH"
-echo "mantis is ready — try: mantis new myapp"
+echo ""
+echo "Run this to use mantis now (or open a new terminal):"
+echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
