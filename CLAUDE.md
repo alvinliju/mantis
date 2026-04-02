@@ -35,7 +35,9 @@ The CLI has no test files yet. When adding tests, run them with `go test ./...` 
   - Tailwind v4 via `@tailwindcss/vite`
   - Pocketbase client at `lib/pocketbase/client.rb` — wraps `net/http`, no gem dependency
   - Auth via Pocketbase: `SessionsController` stores `pb_token` in the Rails session
-- `template/ops/` — NixOS flake (`flake.nix`), deploy script, direnv config
+- `template/flake.nix` — NixOS flake at the project root (so `nix develop` works without arguments)
+- `template/.envrc` — direnv config at project root
+- `template/ops/` — deploy script and NixOS server configuration
 
 Two placeholders are replaced at scaffold time:
 - `__project_name__` → the project name as-given (e.g. `my-app`)

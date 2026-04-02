@@ -1,18 +1,16 @@
-nix flake for dev and prod.
+nix dev environment and production deploy config.
 
-nix develop — drops you into a shell with everything running.
-direnv allow — loads it automatically on cd.
+flake.nix lives at the project root — run `nix develop` from there.
+direnv: `direnv allow` at the project root auto-loads it on cd.
 
 deploys to any vps with ssh access.
 hetzner recommended. others work fine.
 
-secrets go in .env. never in the flake.
-
+secrets go in rails/.env. never in the flake.
 
 ```
-in nixos/configuration.nix
+in ops/nixos/configuration.nix
 virtualHosts."your-domain.com"
 
 Replace `your-domain.com` with your actual domain when you have one.
-
----
+```
